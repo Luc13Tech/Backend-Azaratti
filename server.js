@@ -63,6 +63,16 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 5000;
+
+// Vérification au démarrage : alerte clairement dans les logs Render si une
+// variable Cloudinary manque, au lieu de laisser échouer silencieusement
+// au moment de la publication d'un article.
+["CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"].forEach((key) => {
+  if (!process.env[key] || !process.env[key].trim()) {
+    console.warn(`⚠️ Variable d'environnement manquante ou vide : ${key}`);
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Serveur AzaRatti démarré sur le port ${PORT}`);
 });

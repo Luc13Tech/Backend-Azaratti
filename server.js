@@ -14,9 +14,27 @@ const app = express();
 connectDB();
 
 // Middlewares
+// Liste des origines autorisées à appeler l'API. On inclut les variantes
+// avec et sans "www" pour éviter tout blocage CORS si le domaine est
+// configuré différemment sur Vercel.
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  "https://azaratti.com",
+  "https://www.azaratti.com",
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: [process.env.FRONTEND_URL, "http://localhost:5173", "http://localhost:3000"],
+    origin: (origin, callback) => {
+      // "origin" est vide pour les appels sans navigateur (ex: tests, curl) → on autorise
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Origine non autorisée par la politique CORS."));
+      }
+    },
     credentials: true,
   })
 );
